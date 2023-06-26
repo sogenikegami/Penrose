@@ -96,7 +96,7 @@ def pen():
             if x*x + y*y < radius *radius:
                 r = np.array([x,y])
                 findpen(r,rvalue,Kvalue,vertexvalue,Kset,vertexdata)                
-                if abs(y) < ymax/3:
+                if abs(y) < ymax/4:
                     for alpha in range(1,10):
                         for beta in range(1,10):
                             x = (i+alpha/10)*xmax/xnum
@@ -130,7 +130,7 @@ def pen():
             for k in range(len(vertexdata)):
                 trialvec = vertexdata[k]['pos']
                 if np.linalg.norm(trialvec-R2dj) < 10**(-4):
-                    vertexdata[i]['neighbor'].append([k,j])
+                    vertexdata[i]['neighbor'].append([k,j+2.5])
                     jcount += 1
                     plt.plot([R2d[0],R2dj[0]],[R2d[1],R2dj[1]],color=c)
                     break
