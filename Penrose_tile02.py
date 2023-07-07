@@ -2,6 +2,9 @@ import math
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import re
+import csv
+path = '/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/vertexfile/'
 
 theta = 2*math.pi/5
 g1 = 0.1
@@ -53,12 +56,10 @@ def findpen(r,rvalue,Kvalue,vertexvalue,Kset,vertexdata):
         vertexdata.append({'pos':R2d,'neighbor':[],'K':Kxy,'r':r})
     return 0
 
-def pen():
-    xnum = 100
-    ynum = 100
-    xmax = 3 #
-    ymax = 3
-    radius = 3
+def pen(xmax,ymax,radius,filepath,imgname):
+    xnum = 500
+    ynum = 500
+
 
     fig = plt.figure()
     rvalue = [] # position on 2D plane which were already searched
@@ -139,15 +140,44 @@ def pen():
 
 
     fig.show()
-    plt.savefig('/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/penrose06')
+    plt.savefig(filepath + imgname)
     print(len(vertexvalue))
     return vertexdata
 
+"""
+def writing(xmax,ymax,radius):
+    filename = 'test.csv'
+    is_file = os.path.isfile(path + filename)
+    if is_file == False:
+        field_name = ['pos','neighbor','K','r']
+        with open(path+filename,'w',encoding = 'utf-8',newline="") as f:
+            writer = csv.DictWriter(f,fieldnames = field_name)
+            writer.writeheader()
+            writer.writerows(pen(xmax,ymax,radius))
+    return 0
+"""
 
+def save_vertex(xmax,ymax,radius,filepath,imgname):
+    filename = str(xmax) + 'times' + str(ymax) + '_r=' + str(radius) + '.npy'
+    is_file = os.path.isfile(path + filename)
+    if is_file == False:
+        vertexdata = pen(xmax,ymax,radius,filepath,imgname)
+        np.save(path + filename,vertexdata)
+    return vertexdata
+
+def get_data(xmax,ymax,radius):
+    filename = str(xmax) + 'times' + str(ymax) + '_r=' + str(radius) + '.npy'
+    vertexdata = np.load(path + filename,allow_pickle='True')
+    return vertexdata
 
 
 def main():
-    pen()
+    xmax = 3 #
+    ymax = 3
+    radius = 3
+    #pen(xmax,ymax,radius)
+
+
 
 
 if __name__ == "__main__":
