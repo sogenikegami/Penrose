@@ -2,8 +2,30 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 import Penrose_tile02
+import os
+import sys
+sys.path.append('..')
+from local_chern_marker import local_chern_marker01 
 
-vertexdata = Penrose_tile02.pen()
+
+xmax = 5
+ymax = 5
+radius = 5
+
+
+path = '/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/vertexfile/'
+img_path = '/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/image/'
+filename = str(xmax) + 'times' + str(ymax) + '_r=' + str(radius) + '.npy'
+is_file = os.path.isfile(path + filename)
+
+def get_vertexdata(xmax,ymax,radius):
+    if is_file:
+        vertexdata = Penrose_tile02.get_data(xmax,ymax,radius)
+    else:
+        imgname4penrose = 'Penrose_' + str(xmax) + 'times' + str(ymax) + '_r=' + str(radius)
+        vertexdata = Penrose_tile02.save_vertex(xmax,ymax,radius,img_path,imgname4penrose)
+    return vertexdata
+
 
 def Hsite(vertexdata):#on site energy
     e_s = 1.8
@@ -83,7 +105,7 @@ def Hamiltonian(vertexdata):
     H = Hsite(vertexdata) + Hhop(vertexdata) + Hsoc(vertexdata)
     return H
 
-def eigval(vertexdata,eigval,eigvec): 
+def eigval_plot(vertexdata,eigval): 
     N = len(vertexdata)
     eigenergy = []
     for i in range(len(eigval)):
@@ -91,32 +113,38 @@ def eigval(vertexdata,eigval,eigvec):
     eigenergy.sort()
     index = list(range(1,6*N+1))
     fig = plt.figure()
-    plt.plot(index,eigenergy)
-    plt.savefig('/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/penrose-QL_eigval')
+    ax = fig.add_subplot(1,1,1)
+    ax.scatter(index,eigenergy,s=10)
+    plt.savefig('/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/image/penrose-QL_eigval')
     fig.show()
 
 
 def wavefunc_plot(vertexdata,eigval,eigvec):
     N = len(vertexdata)
     R=[]
+    X=[]
+    Y=[]
     theta = []
     wavefunc = []
     for i in range(6*N):
         if abs(eigval[i].real) < 0.005:
             for j in range(6*N):
                 wavefunc.append(eigvec[j][i])
-                R.append(abs(eigvec[j][i]))
+                R.append(abs(eigvec[j][i])*20)
                 theta.append(math.atan2(wavefunc[j].imag,wavefunc[j].real))
             break
     
     fig = plt.figure()
-    for i in range(N):
-
-        plt.scatter(vertexdata[i]["pos"][0],vertexdata[i]["pos"][1],s=10)
+    ax = fig.add_subplot(1,1,1)
+    #for i in range(N):
+    #    ax.scatter(vertexdata[i]["pos"][0],vertexdata[i]["pos"][1],s=10)
     for i in range(6):
         for j in range(N):
-            plt.scatter(vertexdata[j]["pos"][0],vertexdata[j]["pos"][1],marker='.',s=R[i*N+j]*300,c=theta[i*N+j],cmap='jet')
-    plt.savefig('/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/penrose-QL_wavefunc03')
+            X.append(vertexdata[j]["pos"][0])
+            Y.append(vertexdata[j]["pos"][1])
+    mappable = ax.scatter(X,Y,marker='o',s=R,c=theta,cmap='jet',alpha = 0.5)
+    plt.savefig('/Users/sogenikegami/Documents/UT4S/non-crystal/penrose/image/penrose-QL_wavefunc03')
+    fig.colorbar(mappable,ax=ax)
     fig.show()
     
     #print(len(R))
@@ -127,10 +155,14 @@ def wavefunc_plot(vertexdata,eigval,eigvec):
     
 
 def main():
+    vertexdata = get_vertexdata(xmax,ymax,radius)
     H = Hamiltonian(vertexdata)
     eigval , eigvec = np.linalg.eig(H)
-    wavefunc_plot(vertexdata,eigval,eigvec)
-    #eigval(vertexdata)
+    #eigval_plot(vertexdata,eigval)
+    #wavefunc_plot(vertexdata,eigval,eigvec)
+    fermi_energy = 0
+    imgname4localC = 'localc'+ str(xmax) + 'times' + str(ymax) + '_r=' + str(radius)
+    local_chern_marker01.plot(H,vertexdata,fermi_energy,img_path,imgname4localC)
 
 
 if __name__ == "__main__":
